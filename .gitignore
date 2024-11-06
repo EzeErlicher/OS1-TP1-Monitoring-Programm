@@ -1,0 +1,38 @@
+# Compiled object files
+*.o
+
+# Executables
+*.exe
+*.out
+
+# Compiled libraries
+*.a
+
+
+# Build directory
+/build/
+
+# External directoy
+/external/
+
+# Dependency files
+*.d
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+
+# Dont track sonnar files
+.scannerwork/
+
+# env variables
+.env
+
+# cache
+.cache/
+
+# prometheus
+prometheus-2.53.2.linux-amd64/
+
+# binary file
+programm

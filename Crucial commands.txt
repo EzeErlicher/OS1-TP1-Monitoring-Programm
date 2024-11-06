@@ -1,0 +1,10 @@
+# Compilation command
+gcc -I include -o programm src/main.c src/metrics.c src/expose_metrics.c -lprom -pthread -lpromhttp
+
+# temporary library needed to run the programm
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Prometheus start up command
+./prometheus --config.file=prometheus.yml
+
+# Grafana start up command
