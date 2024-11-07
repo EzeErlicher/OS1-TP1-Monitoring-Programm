@@ -25,7 +25,7 @@ void load_config(const char* config_path)
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
     char* json_content = malloc(file_size + 1);
-    fread(json_content, 1, file_size, file);
+    size_t returned_value = fread(json_content, 1, file_size, file);
     json_content[file_size] = '\0';
     fclose(file);
 
