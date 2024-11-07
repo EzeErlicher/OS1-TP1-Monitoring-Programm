@@ -1,0 +1,48 @@
+name: "Building"
+on:
+  pull_request:
+    branches:
+      - master  # Trigger workflow on pull requests targeting master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake gcc g++ libmicrohttpd-dev
+
+      - name: Clone prometheus-client-c repository
+        run: |
+          git clone https://github.com/digitalocean/prometheus-client-c.git
+
+      - name: Fix incompatible function pointer in promhttp.c
+        run: |
+          sed -i 's/&promhttp_handler/(MHD_AccessHandlerCallback)promhttp_handler/' prometheus-client-c/promhttp/src/promhttp.c
+
+      - name: Build prom library
+        run: |
+          mkdir -p prometheus-client-c/buildprom
+          cd prometheus-client-c/buildprom
+          cmake ../prom
+          make
+          sudo make install
+
+      - name: Build promhttp library
+        run: |
+          mkdir -p prometheus-client-c/buildpromhttp
+          cd prometheus-client-c/buildpromhttp
+          cmake ../promhttp
+          make
+          sudo make install
+
+      - name: Build project
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make

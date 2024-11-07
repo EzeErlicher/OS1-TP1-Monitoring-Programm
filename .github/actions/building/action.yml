@@ -1,0 +1,19 @@
+name: "Build"
+description: "Executes a compilation."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up dependencies
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install libmicrohttpd-dev
+
+    - name: Compile with CMake
+      shell: bash
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+        make

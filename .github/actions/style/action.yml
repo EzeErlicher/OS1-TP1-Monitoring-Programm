@@ -1,0 +1,52 @@
+name: "Style check"
+description: "Style check using clang-format"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Run clang-format"
+      shell: bash
+      run: |
+        # We only make check, not changes
+        # Use the find command with the variable
+        PROJECT_PATH=$(pwd)
+
+        echo $PROJECT_PATH
+
+        # tr: translate or delete character
+        #     - translate, squeeze, and/or delete characters from stdin to stdout.
+        #     - tr [OPTION]... STRING1 [STRING2]
+        #     - STRING1 and STRING2 specify arrays of characters
+        #     - translation means that STRING2 will replace STRING1
+        #
+        # find: finds files and lists them
+        # 
+        # the next section finds all sources and headers files and puts them in a space separated list
+        SOURCE_FILES=$(find $PROJECT_PATH/src -type f \( -name "*.cpp" -or -name "*.hpp" -or -name "*.h" -or -name "*.c" \) | tr "\n" " ")
+        SOURCE_FILES+=$(find $PROJECT_PATH/include -type f \( -name "*.cpp" -or -name "*.hpp" -or -name "*.h" -or -name "*.c" \) | tr "\n" " ")
+
+        ERROR_FILE_FLAG=$PROJECT_PATH/clang-format_errors.txt
+
+        # clang-format: check and format code style 
+        #               - -n (--dry-run) option for checking sytle but not actually making changes
+        #                 outputs to stderr warnings and errors.
+        echo "Running: clang-format -n $SOURCE_FILES"
+        CLANG_COMMAND=$(clang-format -n $SOURCE_FILES 2> ${ERROR_FILE_FLAG}) 
+
+        if [ -s $ERROR_FILE_FLAG ]; then
+            echo "Error: There are some files that are not formatted correctly"
+            cat $ERROR_FILE_FLAG
+            exit 1
+        else
+            echo "All files are formatted correctly. Niiiceee"
+            exit 0
+        fi
+
+    # Upload errors as an artifact, when failed
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: Clang-format errors!!!
+        path: ./clang-format_errors.txt
+        retention-days: 1
+

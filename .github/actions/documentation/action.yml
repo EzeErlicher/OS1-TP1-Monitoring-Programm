@@ -1,0 +1,45 @@
+name: "Doc check"
+description: "Code documentation generation with Doxygen"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Run doxygen command"
+      shell: bash
+      run: |
+          # We only make check, not changes
+          DOX_CONF_FILE=$(pwd)/Doxyfile
+
+          # Append to DOX_CONF_FILE input source directories 
+          {
+              cat $DOX_CONF_FILE
+              echo "INPUT" = $(pwd)/src $(pwd)/include
+          } > $DOX_CONF_FILE
+
+          # Generate documentation
+          # dot -c clears Graphviz configuration, doxygen uses Graphviz for generating graphical representations
+          sudo dot -c
+
+          ERROR_FILE_FLAG=$(pwd)/dox_errors.txt
+
+          # create documentation: -s specifies comments of configurations items will be omitted.
+          # pipe stderr to error file
+          DOXYGEN_COMMAND=$(doxygen -s $DOX_CONF_FILE 2> $ERROR_FILE_FLAG)
+
+          # if error file not empty fail
+          if [ -s $ERROR_FILE_FLAG ]; then
+            echo "Error: There are some files that are not documented correctly"
+            exit 1
+          else
+            echo "All files are documented correctly. Niiiceee"
+            exit 0
+          fi
+      
+    # Upload errors as an artifact, when failed
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: Doxygen errors!!!
+        path: ./dox_errors.txt
+        retention-days: 1
+
