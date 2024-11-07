@@ -1,5 +1,5 @@
 #include "../include/expose_metrics.h"
-#include <cJSON.h>
+#include <cjson/cJSON.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <signal.h>
