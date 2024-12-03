@@ -1,4 +1,5 @@
 #include "../include/expose_metrics.h"
+#include "../so-i-24-chp3-EzeErlicher/lib/memory/include/memory.h"
 
 /** Mutex para sincronización de hilos */
 
@@ -35,6 +36,16 @@ static prom_gauge_t* writes_metric;
 
 static prom_gauge_t* rx_packets_metric;
 static prom_gauge_t* tx_packets_metric;
+
+// Fragmentation Gauge for memory fragmentation rate
+static prom_gauge_t* first_fit_fragmentation;
+static prom_gauge_t* best_fit_fragmentation;
+static prom_gauge_t* worst_fit_fragmentation;
+
+// Counters for tracking the usage of allocation policies
+static prom_counter_t* first_fit_counter;
+static prom_counter_t* best_fit_counter;
+static prom_counter_t* worst_fit_counter;
 
 void update_cpu_gauge()
 {
@@ -140,6 +151,10 @@ void update_rx_tx_packets_gauge()
     {
         fprintf(stderr, "Error al obtener los paquetes recibido y enviados\n");
     }
+}
+
+update_adv_memory_management_metrics()
+{
 }
 
 void* expose_metrics(void* arg)

@@ -46,6 +46,12 @@ void update_reads_writes_gauge();
  */
 void update_rx_tx_packets_gauge();
 
+
+/**
+ * @brief Actualiza las métricas de uso de de memoria avanzadas .
+ */
+void update_adv_memory_management_metrics();
+
 /**
  * @brief Función del hilo para exponer las métricas vía HTTP en el puerto 8000.
  * @param arg Argumento no utilizado.

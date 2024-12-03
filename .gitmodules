@@ -1,3 +1,6 @@
 [submodule "prometheus-client-c"]
 	path = prometheus-client-c
 	url = https://github.com/digitalocean/prometheus-client-c.git
+[submodule "so-i-24-chp3-EzeErlicher"]
+	path = so-i-24-chp3-EzeErlicher
+	url = https://github.com/ICOMP-UNC/so-i-24-chp3-EzeErlicher.git

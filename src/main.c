@@ -10,7 +10,7 @@
 #define PIPE_PATH "/tmp/monitor_pipe"
 
 bool cpu_enabled, memory_enabled, context_switches_enabled, running_processes_enabled, reads_writes_enabled,
-    rx_tx_packets_enabled;
+    rx_tx_packets_enabled,fragmentation_enabled;
 
 void load_config(const char* config_path)
 {
@@ -43,6 +43,7 @@ void load_config(const char* config_path)
     running_processes_enabled = cJSON_IsTrue(cJSON_GetObjectItem(metrics, "running_processes"));
     reads_writes_enabled = cJSON_IsTrue(cJSON_GetObjectItem(metrics, "reads_writes"));
     rx_tx_packets_enabled = cJSON_IsTrue(cJSON_GetObjectItem(metrics, "rx_tx_packets"));
+    fragmentation_enabled = cJSON_IsTrue(cJSON_GetObjectItem(metrics, "fragmentation"));
 
     cJSON_Delete(config_json);
     free(json_content);
@@ -110,6 +111,10 @@ int main(int argc, char* argv[])
         if (rx_tx_packets_enabled)
         {
             update_rx_tx_packets_gauge();
+        }
+        if(fragmentation_enabled)
+        {
+            update_adv_memory_management_metrics();
         }
 
         sleep(SLEEP_TIME);

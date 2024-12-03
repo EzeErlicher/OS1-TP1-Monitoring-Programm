@@ -25,6 +25,7 @@ add_executable(monitoring_programm
     src/main.c
     src/metrics.c
     src/expose_metrics.c
+    ../so-i-24-chp3-EzeErlicher/lib/memory/src/memory.c
 )
 
 # Find the cJSON package from Conan (using the CMakeDeps generator)
