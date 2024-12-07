@@ -1,5 +1,5 @@
 #include "../include/expose_metrics.h"
-#include "../so-i-24-chp3-EzeErlicher/lib/memory/include/memory.h"
+#include "memory.h"
 
 /** Mutex para sincronización de hilos */
 
@@ -153,8 +153,37 @@ void update_rx_tx_packets_gauge()
     }
 }
 
-update_adv_memory_management_metrics()
+void update_adv_memory_management_metrics()
 {
+    double first_fit_frag = test_efficiency(FIRST_FIT);
+    double best_fit_frag = test_efficiency(BEST_FIT);
+    double worst_fit_frag = test_efficiency(WORST_FIT);
+
+    if (first_fit_frag >= 0 && best_fit_frag >= 0 && worst_fit_frag >= 0)
+    {
+        if (pthread_mutex_lock(&lock) == 0)
+        {
+            // Update fragmentation metrics
+            prom_gauge_set(first_fit_fragmentation, first_fit_frag, NULL);
+            prom_gauge_set(best_fit_fragmentation, best_fit_frag, NULL);
+            prom_gauge_set(worst_fit_fragmentation, worst_fit_frag, NULL);
+
+            // Increment counters for allocation policies
+            prom_counter_inc(first_fit_counter, NULL);
+            prom_counter_inc(best_fit_counter, NULL);
+            prom_counter_inc(worst_fit_counter, NULL);
+
+            pthread_mutex_unlock(&lock);
+        }
+        else
+        {
+            fprintf(stderr, "Error locking mutex for fragmentation metrics update\n");
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error calculating fragmentation values\n");
+    }
 }
 
 void* expose_metrics(void* arg)
@@ -260,6 +289,31 @@ int init_metrics()
         return EXIT_FAILURE;
     }
 
+    first_fit_fragmentation =
+        prom_gauge_new("first_fit_fragmentation", "Porcentaje de fragmentacion - First fit", 0, NULL);
+    best_fit_fragmentation =
+        prom_gauge_new("best_fit_fragmentation", "Porcentaje de fragmentacion - best fit", 0, NULL);
+    worst_fit_fragmentation =
+        prom_gauge_new("worst_fit_fragmentation", "Porcentaje de fragmentacion - worst fit", 0, NULL);
+    if (!first_fit_fragmentation || !best_fit_fragmentation || !worst_fit_fragmentation)
+    {
+        fprintf(stderr, "Error al crear las métricas de fraqgmentación de memoria\n");
+        return EXIT_FAILURE;
+    }
+
+    first_fit_counter = prom_counter_new("allocation_policy_first_fit_count",
+                                         "Número de veces que se utilizó la política de asignación First Fit", 0, NULL);
+    best_fit_counter = prom_counter_new("allocation_policy_best_fit_count",
+                                        "Número de veces que se utilizó la política de asignación Best Fit", 0, NULL);
+    worst_fit_counter = prom_counter_new("allocation_policy_worst_fit_count",
+                                         "Número de veces que se utilizó la política de asignación Worst Fit", 0, NULL);
+    if (!first_fit_counter || !best_fit_counter || !worst_fit_counter)
+    {
+        fprintf(stderr, "Error al crear las métricas de políticas de asignación de memoria\n");
+        return EXIT_FAILURE;
+    }
+
+
     if (prom_collector_registry_must_register_metric(cpu_usage_metric) == NULL)
     {
         fprintf(stderr, "Error al registrar la métrica de uso de CPU\n");
@@ -323,6 +377,22 @@ int init_metrics()
     if (prom_collector_registry_must_register_metric(tx_packets_metric) == NULL)
     {
         fprintf(stderr, "Error al registrar la métrica de paquetes transmitidos\n");
+        return EXIT_FAILURE;
+    }
+
+    if (prom_collector_registry_must_register_metric(first_fit_fragmentation) == NULL ||
+        prom_collector_registry_must_register_metric(best_fit_fragmentation) == NULL ||
+        prom_collector_registry_must_register_metric(worst_fit_fragmentation) == NULL)
+    {
+        fprintf(stderr, "Error registering fragmentation metrics\n");
+        return EXIT_FAILURE;
+    }
+
+    if (prom_collector_registry_must_register_metric(first_fit_counter) == NULL ||
+        prom_collector_registry_must_register_metric(best_fit_counter) == NULL ||
+        prom_collector_registry_must_register_metric(worst_fit_counter) == NULL)
+    {
+        fprintf(stderr, "Error registering memory managment policies counters\n");
         return EXIT_FAILURE;
     }
 }
