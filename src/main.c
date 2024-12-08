@@ -8,9 +8,10 @@
 #include <unistd.h>
 
 #define PIPE_PATH "/tmp/monitor_pipe"
+#define SLEEP_TIME 4
 
 bool cpu_enabled, memory_enabled, context_switches_enabled, running_processes_enabled, reads_writes_enabled,
-    rx_tx_packets_enabled,fragmentation_enabled;
+    rx_tx_packets_enabled, fragmentation_enabled;
 
 void load_config(const char* config_path)
 {
@@ -54,8 +55,6 @@ void handle_sigterm(int signum)
     printf("Monitor stopping...\n");
     exit(0);
 }
-
-#define SLEEP_TIME 1
 
 int main(int argc, char* argv[])
 {
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
         {
             update_rx_tx_packets_gauge();
         }
-        if(fragmentation_enabled)
+        if (fragmentation_enabled)
         {
             update_adv_memory_management_metrics();
         }
