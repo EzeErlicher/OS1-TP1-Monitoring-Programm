@@ -292,21 +292,21 @@ int init_metrics()
     first_fit_fragmentation =
         prom_gauge_new("first_fit_fragmentation", "Porcentaje de fragmentacion - First fit", 0, NULL);
     best_fit_fragmentation =
-        prom_gauge_new("best_fit_fragmentation", "Porcentaje de fragmentacion - best fit", 0, NULL);
+        prom_gauge_new("best_fit_fragmentation", "Porcentaje de fragmentacion - Best fit", 0, NULL);
     worst_fit_fragmentation =
-        prom_gauge_new("worst_fit_fragmentation", "Porcentaje de fragmentacion - worst fit", 0, NULL);
+        prom_gauge_new("worst_fit_fragmentation", "Porcentaje de fragmentacion - Worst fit", 0, NULL);
     if (!first_fit_fragmentation || !best_fit_fragmentation || !worst_fit_fragmentation)
     {
-        fprintf(stderr, "Error al crear las métricas de fraqgmentación de memoria\n");
+        fprintf(stderr, "Error al crear las metricas de fragmentacion de memoria\n");
         return EXIT_FAILURE;
     }
 
     first_fit_counter = prom_counter_new("allocation_policy_first_fit_count",
-                                         "Número de veces que se utilizó la política de asignación First Fit", 0, NULL);
+                                         "Numero de veces que se utilizo First Fit", 0, NULL);
     best_fit_counter = prom_counter_new("allocation_policy_best_fit_count",
-                                        "Número de veces que se utilizó la política de asignación Best Fit", 0, NULL);
+                                        "Numero de veces que se utilizo Best Fit", 0, NULL);
     worst_fit_counter = prom_counter_new("allocation_policy_worst_fit_count",
-                                         "Número de veces que se utilizó la política de asignación Worst Fit", 0, NULL);
+                                         "Numero de veces que se utilizo Worst Fit", 0, NULL);
     if (!first_fit_counter || !best_fit_counter || !worst_fit_counter)
     {
         fprintf(stderr, "Error al crear las métricas de políticas de asignación de memoria\n");
